@@ -1,0 +1,16 @@
+services:
+  mariadb:
+    container_name: mariadb
+    build: ./requirements/mariadb/
+    restart: unless-stopped
+    ports:  
+      - "3306:3306"
+    env_file: ./.env
+    networks:
+      - inception-network
+    volumes:
+      - /home/michoi/data/mariadb:/var/lib/mysql
+
+networks:
+  inception-network:
+    driver: bridge

@@ -10,7 +10,37 @@ services:
       - inception-network
     volumes:
       - /home/michoi/data/mariadb:/var/lib/mysql
+      
+  nginx:
+    container_name: nginx
+    build: ./requirements/nginx/
+    restart: unless-stopped
+    ports:
+      - "443:443"
+    env_file: ./.env
+    networks:
+      - inception-network
+    volumes:
+      - /home/michoi/data/wordpress:/var/www/html
+    depends_on:
+      - wordpress
+  
+  wordpress:
+    container_name: wordpress
+    build: ./requirements/wordpress/
+    restart: unless-stopped
+    env_file: ./.env
+    networks:
+      - inception-network
 
 networks:
   inception-network:
     driver: bridge
+    
+volumes:
+  mariadb:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /home/michoi/data/mariadb

@@ -1,6 +1,6 @@
 FROM alpine:3.23.3
 
-RUN apk update && apk add --no-cache mariadb mariadb-client \
+RUN apk add --no-cache mariadb mariadb-client \
 	&& rm -rf /var/cache/apk/*
 
 COPY ./conf/mariadb_config.cnf /etc/my.cnf.d/mariadb_config.cnf

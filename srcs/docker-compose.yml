@@ -4,7 +4,7 @@ services:
     build: ./requirements/mariadb/
     restart: unless-stopped
     ports:
-      - "3306:3306"
+      - 3306
     env_file: ./.env
     networks:
       - inception-network
@@ -32,7 +32,7 @@ services:
     build: ./requirements/nginx/
     restart: unless-stopped
     ports:
-      - "443:443"
+      - 443
     env_file: ./.env
     networks:
       - inception-network
@@ -49,6 +49,16 @@ services:
     env_file: ./.env
     networks:
       - inception-network
+    volumes:
+      - /home/michoi/data/wordpress:/var/www/html
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "test", "-f", "/var/www/html/wp-login.php"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
 
 networks:
   inception-network:
@@ -61,3 +71,10 @@ volumes:
       type: none
       o: bind
       device: /home/michoi/data/mariadb
+
+  wordpress:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /home/michoi/data/wordpress

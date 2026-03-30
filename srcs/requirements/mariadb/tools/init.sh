@@ -20,7 +20,7 @@ chmod -R 755 "${DATADIR}"
 
 if [ ! -d "${DATADIR}/mysql" ]; then
 	echo "Initializing MariaDB system tables"
-	mariadb-install-db --basedir=/usr --user=mysql --datadir="${DATADIR}"
+	mariadb-install-db --basedir=/usr --user=mysql --datadir=/var/lib/mysql
 	
 	echo "Creating Wordpress database and user"
 	mysqld --user=mysql --skip-networking --bootstrap --datadir="${DATADIR}" << EOF

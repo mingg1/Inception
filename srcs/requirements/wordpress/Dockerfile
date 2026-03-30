@@ -20,4 +20,6 @@ RUN chmod +x /usr/local/bin/init.sh
 
 EXPOSE 9000
 
+RUN ln -s /usr/bin/php83 /usr/bin/php
+
 ENTRYPOINT ["/usr/local/bin/init.sh"]

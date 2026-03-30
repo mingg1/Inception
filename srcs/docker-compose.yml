@@ -10,37 +10,38 @@ services:
       - inception-network
     volumes:
       - /home/michoi/data/mariadb:/var/lib/mysql
-    healthcheck:
-      test:
-        [
-          "CMD",
-          "mariadb-admin",
-          "ping",
-          "--protocol=tcp",
-          "--host=localhost",
-          "-u",
-          "$WORDPRESS_DATABASE_USER",
-          "--password=$WORDPRESS_DATABASE_USER_PASSWORD",
-        ]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 30s
+    # healthcheck:
+    #   test:
+    #     [
+    #       "CMD",
+    #       "mariadb-admin",
+    #       "ping",
+    #       "--protocol=tcp",
+    #       "--host=localhost",
+    #       "-u",
+    #       "$WORDPRESS_DATABASE_USER",
+    #       "--password=$WORDPRESS_DATABASE_USER_PASSWORD",
+    #     ]
+    #   interval: 10s
+    #   timeout: 5s
+    #   retries: 5
+    #   start_period: 30s
 
   nginx:
     container_name: nginx
     build: ./requirements/nginx/
     restart: unless-stopped
     ports:
-      - 443
+      - "80:80"
+      - "443:443"
     env_file: ./.env
     networks:
       - inception-network
     volumes:
       - /home/michoi/data/wordpress:/var/www/html
     depends_on:
-      wordpress:
-        condition: service_healthy
+      - wordpress
+#        condition: service_healthy
 
   wordpress:
     container_name: wordpress
@@ -52,13 +53,13 @@ services:
     volumes:
       - /home/michoi/data/wordpress:/var/www/html
     depends_on:
-      mariadb:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD", "test", "-f", "/var/www/html/wp-login.php"]
-      interval: 10s
-      timeout: 10s
-      retries: 5
+      - mariadb
+        # condition: service_healthy
+#    healthcheck:
+ #     test: ["CMD", "test", "-f", "/var/www/html/wp-login.php"]
+  #    interval: 10s
+   #   timeout: 10s
+    #  retries: 5
 
 networks:
   inception-network:

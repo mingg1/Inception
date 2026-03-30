@@ -4,17 +4,11 @@ VOLUME_DIR := $(HOME)/data
 MARIADB_DATA_DIR := $(VOLUME_DIR)/mariadb
 WORDPRESS_DATA_DIR := $(VOLUME_DIR)/wordpress
 
-all: volume-setup build up
+all: volume-setup up
 
 volume-setup:
-	if [ ! -d $(MARIADB_DATA_DIR) ]; then \
-		@echo "⚙️ Creating volume for mariadb"
-		@mkdir -p $(MARIADB_DATA_DIR)
-	fi
-	if [ ! -d $(WORDPRESS_DATA_DIR) ]; then \
-		@echo "⚙️ Creating volume for wordpress"
-		@mkdir -p $(WORDPRESS_DATA_DIR)
-	fi
+		mkdir -p $(MARIADB_DATA_DIR); 
+		mkdir -p $(WORDPRESS_DATA_DIR);
 	@echo "✅ Local volume directories are created at $(VOLUME_DIR)"
 
 build:
@@ -22,7 +16,7 @@ build:
 
 # build, (re)create, start, attach to containers for a service
 up:
-	docker compose -f $(COMPOSE_FILE) up -d
+	docker compose -f $(COMPOSE_FILE) up
 	@echo "Inception: Containers are up and running now :D"
 
 down:

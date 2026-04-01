@@ -10,7 +10,6 @@ echo "memory_limit=512M" > /etc/php83/conf.d/99-custom.ini
 
 cd /var/www/html
 
-
 if [ ! -f /usr/local/bin/wp ]; then
     echo "${GREEN}Downloading WordPress Client and renaming wp-cli.phar to wp...${ENDCOLOR}"
     
@@ -31,7 +30,6 @@ if [ ! -f /var/www/html/wp-config.php ]; then
     echo "${GREEN}Downloading, Installing, Configuring WordPress files (core essentials)...${ENDCOLOR}"
     
 #    /usr/bin/php83 -dmemory_limit=512M /usr/local/bin/wp core download --allow-root
-    echo hello?
     wp config create \
         --dbname="$WORDPRESS_DATABASE_NAME" \
         --dbuser="$WORDPRESS_DATABASE_USER" \

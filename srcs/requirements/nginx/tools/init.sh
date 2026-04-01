@@ -21,5 +21,5 @@ else
   fi
 fi
 
-mkdir -p /var/www/wp
+mkdir -p /var/www/html
 exec nginx -g 'daemon off;'

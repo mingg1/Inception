@@ -21,9 +21,12 @@ chmod -R 755 "${DATADIR}"
 if [ ! -d "${DATADIR}/mysql" ]; then
 	echo "Initializing MariaDB system tables"
 	mariadb-install-db --basedir=/usr --user=mysql --datadir=/var/lib/mysql
-	
-	echo "Creating Wordpress database and user"
-	mysqld --user=mysql --skip-networking --bootstrap --datadir="${DATADIR}" << EOF
+else
+	echo "MariaDB is already installed. Database and users are configured."
+fi
+
+echo "Creating Wordpress database and user"
+mysqld --user=mysql --skip-networking --bootstrap --datadir="${DATADIR}" << EOF
 
 USE mysql;
 FLUSH PRIVILEGES;
@@ -35,10 +38,6 @@ GRANT ALL PRIVILEGES ON \`${WORDPRESS_DATABASE_NAME}\`.* TO \`${WORDPRESS_DATABA
 FLUSH PRIVILEGES;
 
 EOF
-
-else
-	echo "MariaDB is already installed. Database and users are configured."
-fi
 
 echo "🚀 Starting MariaDB server"
 exec mysqld --defaults-file="${CONFIG_FILE}" --console

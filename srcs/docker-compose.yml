@@ -19,7 +19,8 @@ services:
           "-h",
           "localhost",
           "-P",
-          "3306"
+          "3306",
+          "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"
         ]
       interval: 10s
       timeout: 5s

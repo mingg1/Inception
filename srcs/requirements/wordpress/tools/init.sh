@@ -5,7 +5,7 @@ ENDCOLOR="\e[0m"
 
 set -eu
 
-echo "${GREEN}🪄 Initializing WordPress...${ENDCOLOR}"
+echo "🪄 ${GREEN}Initializing WordPress...${ENDCOLOR}"
 echo "memory_limit=512M" > /etc/php83/conf.d/99-custom.ini
 
 cd /var/www/html

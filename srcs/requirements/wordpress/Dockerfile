@@ -11,6 +11,10 @@ RUN apk add --no-cache \
 	php83-json \
 	wget && rm -rf /var/cache/apk/*
 
+RUN wget -q https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar \
+    && chmod +x wp-cli.phar \
+    && mv wp-cli.phar /usr/local/bin/wp	
+
 COPY ./conf/www.conf /etc/php83/php-fpm.d/www.conf
 
 RUN mkdir -p /var/www/wp /var/www/html
@@ -22,4 +26,7 @@ EXPOSE 9000
 
 RUN ln -s /usr/bin/php83 /usr/bin/php
 
+WORKDIR /var/www/html
+
 ENTRYPOINT ["/usr/local/bin/init.sh"]
+CMD ["php-fpm83", "-F"]

@@ -2,6 +2,7 @@ services:
   mariadb:
     container_name: mariadb
     build: ./requirements/mariadb/
+    image: mariadb
     restart: unless-stopped
     env_file: ./.env
     networks:
@@ -28,6 +29,7 @@ services:
   nginx:
     container_name: nginx
     build: ./requirements/nginx/
+    image: nginx
     restart: unless-stopped
     ports:
       - "443:443"
@@ -43,6 +45,7 @@ services:
   wordpress:
     container_name: wordpress
     build: ./requirements/wordpress/
+    image: wordpress
     restart: unless-stopped
     env_file: ./.env
     networks:

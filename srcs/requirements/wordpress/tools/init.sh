@@ -6,17 +6,21 @@ ENDCOLOR="\e[0m"
 set -eu
 
 echo "🪄 ${GREEN}Initializing WordPress...${ENDCOLOR}"
-echo "memory_limit=512M" > /etc/php83/conf.d/99-custom.ini
+# echo "memory_limit=512M" > /etc/php83/conf.d/99-custom.ini
+
+if [ ! -f /etc/php83/conf.d/99-custom.ini ]; then
+    echo "memory_limit=512M" > /etc/php83/conf.d/99-custom.ini
+fi
 
 cd /var/www/html
 
-if [ ! -f /usr/local/bin/wp ]; then
-    echo "${GREEN}Downloading WordPress Client and renaming wp-cli.phar to wp...${ENDCOLOR}"
+# if [ ! -f /usr/local/bin/wp ]; then
+#     echo "${GREEN}Downloading WordPress Client and renaming wp-cli.phar to wp...${ENDCOLOR}"
     
-    wget -q https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar || { echo "Failed to download wp-cli.phar"; exit 1; }
-    chmod +x wp-cli.phar
-    mv wp-cli.phar /usr/local/bin/wp
-fi
+#     wget -q https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar || { echo "Failed to download wp-cli.phar"; exit 1; }
+#     chmod +x wp-cli.phar
+#     mv wp-cli.phar /usr/local/bin/wp
+# fi
 
 if [ ! -f wp-load.php ]; then
 	echo "Downloading WordPress core"
@@ -24,10 +28,14 @@ if [ ! -f wp-load.php ]; then
 fi
 
 echo "${GREEN}Checking if MariaDB is running and waiting for it to be ready...${ENDCOLOR}"
+until mariadb-admin ping -h mariadb -u"$WORDPRESS_DATABASE_USER" -p"$WORDPRESS_DATABASE_USER_PASSWORD" --silent; do
+    echo "Waiting for MariaDB..."
+    sleep 2
+done
 # mariadb-admin ping --protocol=tcp -h mariadb -u "$WORDPRESS_DATABASE_USER" -p "$WORDPRESS_DATABASE_USER_PASSWORD" --wait=300 || { echo "MariaDB is not ready. Exiting."; exit 1; }
 
-if [ ! -f /var/www/html/wp-config.php ]; then
-    echo "${GREEN}Downloading, Installing, Configuring WordPress files (core essentials)...${ENDCOLOR}"
+if [ ! -f wp-config.php ]; then
+    echo "${GREEN}Creating wp-config.php...${ENDCOLOR}"
     
 #    /usr/bin/php83 -dmemory_limit=512M /usr/local/bin/wp core download --allow-root
     wp config create \
@@ -36,7 +44,10 @@ if [ ! -f /var/www/html/wp-config.php ]; then
         --dbpass="$WORDPRESS_DATABASE_USER_PASSWORD" \
         --dbhost=mariadb \
         --force
+fi
 
+if ! wp core is-installed --allow-root; then
+    echo "${GREEN}Installing WordPress...${ENDCOLOR}"
     wp core install --url="$DOMAIN_NAME" --title="$WORDPRESS_TITLE" \
         --admin_user="$WORDPRESS_ADMIN" \
         --admin_password="$WORDPRESS_ADMIN_PASSWORD" \
@@ -58,4 +69,4 @@ chown -R nobody:nobody /var/www/html
 chmod -R 755 /var/www/html/
 
 echo "${GREEN}==> Running PHP-FPM in the foreground (to prevent the container from stopping)...${ENDCOLOR}"
-exec php-fpm83 -F
+exec "$@"

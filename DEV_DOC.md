@@ -104,8 +104,8 @@ echo "127.0.0.1   michoi.42.fr" | sudo tee -a /etc/hosts
 Docker volumes are mapped to the host filesystem. Create the mount points:
 
 ```bash
-mkdir -p ~/data/wordpress
-mkdir -p ~/data/mariadb
+mkdir -p $(HOME)/data/wordpress
+mkdir -p $(HOME)/data/mariadb
 ```
 
 ---
@@ -118,14 +118,7 @@ mkdir -p ~/data/mariadb
 make
 ```
 
-This runs `docker compose up --build -d` under the hood. It builds all images from their respective `Dockerfile`s and starts the containers in detached mode.
-
-### Rebuild a single service
-
-```bash
-docker compose -f srcs/docker-compose.yml build <service>
-docker compose -f srcs/docker-compose.yml up -d <service>
-```
+This runs `docker compose up --build -d`. It builds all images from their respective `Dockerfile`s and starts the containers in detached mode.
 
 ---
 
@@ -152,16 +145,15 @@ docker logs --tail 50 <container_name>  # Last 50 lines
 ### Exec into a running container
 
 ```bash
-docker exec -it <container_name> sh    # Open a shell (Alpine)
-docker exec -it <container_name> bash  # Open bash (Debian)
+docker exec -it <container_name> sh    # Open a shell in the container
 ```
 
 ### Docker Compose shortcuts (from `srcs/`)
 
 ```bash
-docker compose -f srcs/docker-compose.yml ps         # Status of all services
-docker compose -f srcs/docker-compose.yml down        # Stop and remove containers
-docker compose -f srcs/docker-compose.yml down -v     # Also remove volumes
+docker compose ps         # Status of all services
+docker compose down        # Stop and remove containers
+docker compose down -v     # Also remove volumes
 ```
 
 ---
@@ -183,8 +175,8 @@ docker compose -f srcs/docker-compose.yml down -v     # Also remove volumes
 All persistent data is stored in Docker named volumes, which are mapped to the host at:
 
 ```
-/home/<your_login>/data/wordpress/   → WordPress site files
-/home/<your_login>/data/mariadb/     → MariaDB database files
+$(HOME)/data/wordpress/   → WordPress site files
+$(HOME)/data/mariadb/     → MariaDB database files
 ```
 
 Data survives container restarts and `make down`. It is only removed when you explicitly run `make clean` or `docker compose down -v`.
@@ -219,25 +211,12 @@ docker exec -it nginx openssl req -x509 -nodes -days 365 \
 
 The MariaDB service is initialized with:
 
-- A **root** account (password from `secrets/db_root_password.txt`)
-- A **regular user** (from `MYSQL_USER` in `.env`, password from `secrets/db_password.txt`) with access to the WordPress database
+- A **root** account (password from `MYSQL_ROOT_PASSWORD` in `.env`)
+- A **regular user** (from `WORDPRESS_DATABASE_USER` and password from `WORDPRESS_DATABASE_USER_PASSWORD` in `.env`) with access to the WordPress database
 
 WordPress is configured with:
 
-- An **administrator** account (username must not contain `admin` or `administrator`)
-- A **regular user** account
+- An **administrator** account (from `WORDPRESS_ADMIN` and password from `WORDPRESS_ADMIN_PASSWORD` in `.env`)
+- A **regular user** account (from `WORDPRESS_USER` and password from `WORDPRESS_USER_PASSWORD` in `.env`)
 
 Both are created automatically via wp-cli during the WordPress container's first startup.
-
----
-
-## Common Issues
-
-| Issue                         | Likely Cause                  | Fix                                                         |
-| ----------------------------- | ----------------------------- | ----------------------------------------------------------- |
-| `Error: No such service`      | Typo in service name          | Check `docker-compose.yml` for exact names                  |
-| MariaDB fails to start        | Missing or empty secret file  | Verify `secrets/db_password.txt` exists and is non-empty    |
-| WordPress can't connect to DB | MariaDB not ready yet         | The entrypoint script should handle retries; check logs     |
-| NGINX returns 502 Bad Gateway | WordPress/php-fpm not running | Check `docker logs wordpress`                               |
-| Volume data not persisting    | Wrong mount path              | Check `docker-compose.yml` volume definitions and host path |
-| Permission denied on data dir | Wrong owner on `~/data/`      | Run `sudo chown -R $USER:$USER ~/data/`                     |

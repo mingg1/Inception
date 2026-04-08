@@ -16,7 +16,7 @@ build:
 
 # build, (re)create, start, attach to containers for a service
 up:
-	docker compose -f $(COMPOSE_FILE) up --build
+	docker compose -f $(COMPOSE_FILE) up --build -d
 	@echo "Inception: Containers are up and running now :D"
 
 down:

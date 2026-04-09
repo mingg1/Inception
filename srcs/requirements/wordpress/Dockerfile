@@ -1,4 +1,4 @@
-FROM alpine:3.23.3
+FROM alpine:3.22.3
 
 RUN apk add --no-cache \
 	mariadb-client \
@@ -24,7 +24,7 @@ RUN chmod +x /usr/local/bin/init.sh
 
 EXPOSE 9000
 
-RUN ln -s /usr/bin/php83 /usr/bin/php
+# RUN ln -s /usr/bin/php83 /usr/bin/php
 
 WORKDIR /var/www/html
 
